@@ -1,0 +1,23 @@
+CHIP PC {
+    IN in[16], load, inc, reset;
+    OUT out[16];
+
+    PARTS:
+    // Increment current PC value
+    Inc16(in=pcOut, out=incOut);
+
+    // Select incremented value or current value
+    Mux16(a=pcOut, b=incOut, sel=inc, out=incOrOut);
+
+    // Load has priority over increment
+    Mux16(a=incOrOut, b=in, sel=load, out=loadOrIncOut);
+
+    // Reset has highest priority
+    Mux16(a=loadOrIncOut, b=false, sel=reset, out=nextValue);
+
+    // Store the next PC value
+    Register(in=nextValue, load=true, out=pcOut);
+
+    // Connect internal PC value to external output
+    Or16(a=pcOut, b=false, out=out);
+}
